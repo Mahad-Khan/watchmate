@@ -10,7 +10,7 @@ class MovieListApiView(APIView):
 
     def get(self, request):
         movies = Movie.objects.all()
-        print(movies.values())
+        # print(movies.values())
         serializer = MovieSerializer(movies, many=True)
         return Response(serializer.data)
 
