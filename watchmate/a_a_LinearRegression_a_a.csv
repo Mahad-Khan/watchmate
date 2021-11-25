@@ -1,0 +1,5 @@
+label,LinearRegression
+mean_absolute_error,3380.4653759025164
+mean_squared_error,23537022.757350624
+root_mean_squared_error,4851.4969604597945
+r2,0.6843550259227732
