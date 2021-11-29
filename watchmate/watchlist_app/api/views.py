@@ -1,17 +1,64 @@
 # from watchlist_app.models import Movie
 from watchlist_app.models import Watchlist, StreamPlatform
-from watchlist_app.api.serializers import WatchlistSerializer, StreamPlatformSerializer
+from watchlist_app.api.serializers import WatchlistSerializer, StreamPlatformSerializer, ReviewSerializer
 from rest_framework.response import Response
 # from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import status
 
 
+class ReviewListApiView(APIView):
+    
+    def get(self, request):
+        reviews = Review.objects.all()
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data)
+
+
+    def post(self,request):
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
+class ReviewDetailApiView(APIView):
+    def get(self, request, pk):
+        try:
+            review = Review.objects.get(pk=pk)
+        except Review.DoesNotExist:
+            return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = ReviewSerializer(review)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        try:
+            review = Review.objects.get(pk=pk)
+        except Review.DoesNotExist:
+            return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = ReviewSerializer(review, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+    def delete(self, request, pk):
+        try:
+            review = Review.objects.get(pk=pk)
+        except Review.DoesNotExist:
+            return Response({"msg":"not found"}, status=status.HTTP_404)
+        review.delete()
+        return Response({"msg": "record has been deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+
 class StreamPlatformListApiView(APIView):
 
     def get(self, request):
         platforms = StreamPlatform.objects.all()
-        serializer = StreamPlatformSerializer(platforms, many=True)
+        serializer = StreamPlatformSerializer(platforms, many=True, context={'request': request})
         return Response(serializer.data)
 
 
