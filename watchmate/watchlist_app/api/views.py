@@ -1,57 +1,71 @@
 # from watchlist_app.models import Movie
-from watchlist_app.models import Watchlist, StreamPlatform
+from watchlist_app.models import Watchlist, StreamPlatform, Review
 from watchlist_app.api.serializers import WatchlistSerializer, StreamPlatformSerializer, ReviewSerializer
 from rest_framework.response import Response
+from rest_framework import generics
+from rest_framework import mixins
 # from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import status
 
 
-class ReviewListApiView(APIView):
+# using generics views
+class ReviewCreate(generics.CreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    # override the create method 
+    def perform_create(self, serializer):
+        pk = self.kwargs['pk']
+        watch = Watchlist.objects.get(pk=pk)
+
+        serializer.save(watchlist=watch)
+
+
+class ReviewList(generics.ListAPIView):
+    # queryset = Review.objects.all()               # have to override queryset method \
+    serializer_class = ReviewSerializer             # because we want review list of a particular movie
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Review.objects.filter(watchlist=pk)
+
+class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+
+
+## using Mixins 
+
+# class ReviewList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+#     queryset = Review.objects.all()
+#     serializer_class = ReviewSerializer
+
+#     def get(self, request):
+#         return self.list(request)
     
-    def get(self, request):
-        reviews = Review.objects.all()
-        serializer = ReviewSerializer(reviews, many=True)
-        return Response(serializer.data)
+#     def post(self,request):
+#         return self.create(request)
 
 
-    def post(self,request):
-        serializer = ReviewSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
+# class ReviewDetail(mixins.RetrieveModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, generics.GenericAPIView):
+
+#     queryset = Review.objects.all()
+#     serializer_class = ReviewSerializer
+
+#     def get(self, request):
+#         return self.retrieve(request)
+    
+#     def delete(self,request):
+#         return self.delete(request)
+    
+#     def put(self,request):
+#         return self.put(request)
 
 
-class ReviewDetailApiView(APIView):
-    def get(self, request, pk):
-        try:
-            review = Review.objects.get(pk=pk)
-        except Review.DoesNotExist:
-            return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ReviewSerializer(review)
-        return Response(serializer.data)
+    
 
-    def put(self, request, pk):
-        try:
-            review = Review.objects.get(pk=pk)
-        except Review.DoesNotExist:
-            return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ReviewSerializer(review, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
-
-    def delete(self, request, pk):
-        try:
-            review = Review.objects.get(pk=pk)
-        except Review.DoesNotExist:
-            return Response({"msg":"not found"}, status=status.HTTP_404)
-        review.delete()
-        return Response({"msg": "record has been deleted"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class StreamPlatformListApiView(APIView):
@@ -78,7 +92,7 @@ class StreamPlatformDetailApiView(APIView):
             platform = StreamPlatform.objects.get(pk=pk)
         except StreamPlatform.DoesNotExist:
             return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = StreamPlatformSerializer(platform)
+        serializer = StreamPlatformSerializer(platform, context={'request': request})
         return Response(serializer.data)
 
     def put(self, request, pk):
