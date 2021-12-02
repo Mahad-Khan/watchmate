@@ -18,10 +18,10 @@ class WatchlistSerializer(serializers.ModelSerializer):
 
 
 class StreamPlatformSerializer(serializers.ModelSerializer):
-    # watchlist = WatchlistSerializer(many=True, read_only=True) # return whole object
+    watchlist = WatchlistSerializer(many=True, read_only=True) # return whole object
     # watchlist = serializers.StringRelatedField(many=True, read_only=True) # return thats implemented in __str__
     # watchlist = serializers.PrimaryKeyRelatedField(many=True, read_only=True) # return primary key
-    watchlist = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='watch-detail')
+    # watchlist = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='watch-detail') # return objects' urls
 
 
     class Meta:
