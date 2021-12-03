@@ -9,15 +9,17 @@ from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+
 
 # using generics views
 class ReviewCreate(generics.CreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
-    # override the create method 
-    def perform_create(self, serializer):
-        pk = self.kwargs['pk']
+    # override the create method                    # we want to create review for a specific \
+    def perform_create(self, serializer):           # watch and we dont provide watch id by post \
+        pk = self.kwargs['pk']                      # it will get by url
         watch = Watchlist.objects.get(pk=pk)
 
         serializer.save(watchlist=watch)
@@ -26,10 +28,12 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()               # have to override queryset method \
     serializer_class = ReviewSerializer             # because we want review list of a particular movie
-
+    permission_classes = [IsAuthenticated]          # object level permission
+    
     def get_queryset(self):
         pk = self.kwargs['pk']
         return Review.objects.filter(watchlist=pk)
+
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()

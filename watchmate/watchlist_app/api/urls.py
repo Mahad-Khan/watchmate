@@ -16,8 +16,9 @@ urlpatterns = [
     path('watch/<int:pk>', WatchDetailApiView.as_view(), name="watch-detail"),
 
     path('', include(router.urls)), # router will handle all types of request
-    # if we have such type of requirements like list all elements and access each element e.g \
-    # stream urls then we can use viewsets with routers
+    
+        # if we have such type of requirements like list all elements and access each element e.g \
+        # stream urls then we can use viewsets with routers
 
     # path('stream/', StreamPlatformListApiView.as_view(), name="stream"),
     # path('stream/<int:pk>', StreamPlatformDetailApiView.as_view(), name="stream-detail"),
