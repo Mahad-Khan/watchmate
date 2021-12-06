@@ -9,7 +9,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.exceptions import ValidationError
 
 
 # using generics views
@@ -21,15 +22,20 @@ class ReviewCreate(generics.CreateAPIView):
     def perform_create(self, serializer):           # watch and we dont provide watch id by post \
         pk = self.kwargs['pk']                      # it will get by url
         watch = Watchlist.objects.get(pk=pk)
-
-        serializer.save(watchlist=watch)
+        review_user = self.request.user
+        reivew_queryset = Review.objects.filter(review_user=review_user, watchlist=watch)
+        if reivew_queryset.exists():
+            raise ValidationError("you have already reviewd this watch")
+        serializer.save(watchlist=watch, review_user=review_user)
 
 
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()               # have to override queryset method \
     serializer_class = ReviewSerializer             # because we want review list of a particular movie
-    permission_classes = [IsAuthenticated]          # object level permission
     
+    # object level permission
+    permission_classes = [IsAuthenticated]                  
+
     def get_queryset(self):
         pk = self.kwargs['pk']
         return Review.objects.filter(watchlist=pk)
@@ -38,6 +44,7 @@ class ReviewList(generics.ListAPIView):
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  
 
 
 
