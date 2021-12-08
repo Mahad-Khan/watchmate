@@ -27,6 +27,13 @@ class ReviewCreate(generics.CreateAPIView):
         reivew_queryset = Review.objects.filter(review_user=review_user, watchlist=watch)
         if reivew_queryset.exists():
             raise ValidationError("you have already reviewd this watch")
+        if watch.number_rating == 0:
+            watch.avg_rating = serializer.validated_data['rating']
+        else:
+            watch.avg_rating = (watch.avg_rating + serializer.validated_data['rating']) / 2
+        
+        watch.number_rating = watch.number_rating + 1
+        watch.save()
         serializer.save(watchlist=watch, review_user=review_user)
 
 

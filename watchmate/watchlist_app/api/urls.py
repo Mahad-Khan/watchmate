@@ -13,7 +13,7 @@ router.register('stream', StreamPlatformVS, basename='streamplatform')
 
 urlpatterns = [
     path('watch/', WatchlistApiView.as_view(), name="watch-list"),
-    path('watch/<int:pk>', WatchDetailApiView.as_view(), name="watch-detail"),
+    path('watch/<int:pk>/', WatchDetailApiView.as_view(), name="watch-detail"),
 
     path('', include(router.urls)), # router will handle all types of request
     
