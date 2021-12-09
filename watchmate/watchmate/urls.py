@@ -19,5 +19,6 @@ import watchlist_app
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('imdb/', include('watchlist_app.api.urls')),
+    path('account/', include('user_app.api.urls')),
     # path('api-auth/', include('rest_framework.urls'))   # temporary login
 ]
