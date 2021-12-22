@@ -136,7 +136,7 @@ REST_FRAMEWORK = {                                    #### this setting will app
         'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework.authentication.BasicAuthentication',
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
+    ],  
 
     #  'DEFAULT_THROTTLE_CLASSES': [                  
     #     'rest_framework.throttling.AnonRateThrottle',
@@ -144,7 +144,10 @@ REST_FRAMEWORK = {                                    #### this setting will app
     # ],
     'DEFAULT_THROTTLE_RATES': {                 # requests counting count combined whichever the view you request \
                                                 # if the view has throttle_classes     
-        'anon': '1/day',
-        'user': '3/day'
+        'anon': '3/day',                        # anonymous scope
+        'user': '3/day',                        # user scope
+        'review-create': '1/day',               # defined scope only for this view
+        'review-list': '3/day',                 # defined scope only for this view
+        'review-detail': '1/day'
     }
 }

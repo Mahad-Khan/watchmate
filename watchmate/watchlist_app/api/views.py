@@ -12,14 +12,15 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from watchlist_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly
 from rest_framework.exceptions import ValidationError
-from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
-
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle, ScopedRateThrottle 
+from watchlist_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle
 
 # using generics views
 class ReviewCreate(generics.CreateAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ReviewCreateThrottle, AnonRateThrottle]
 
     # override the create method                    # we want to create review for a specific \
     def perform_create(self, serializer):           # watch and we dont provide watch id by post \
@@ -42,7 +43,7 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()               # have to override queryset method \
     serializer_class = ReviewSerializer             # because we want review list of a particular movie
-    throttle_classes = [UserRateThrottle, AnonRateThrottle]
+    throttle_classes = [ReviewListThrottle, AnonRateThrottle]
     # object level permission
     # permission_classes = [IsAuthenticated]        # anyone can get review list                  
 
@@ -55,7 +56,9 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsReviewUserOrReadOnly]
-    throttle_classes = [UserRateThrottle, AnonRateThrottle]
+    # throttle_classes = [UserRateThrottle, AnonRateThrottle] 
+    throttle_classes = [ScopedRateThrottle, AnonRateThrottle]  # scopedRateThrottle 
+    throttle_scope = 'review-detail'
       
 
 
