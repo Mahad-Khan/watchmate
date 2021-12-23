@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework import status
 
 
 
@@ -22,10 +23,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"error": "email may not be blank"})
 
         if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError({"error": "Email already exists"})
-        
+            res = serializers.ValidationError({"error": "Email already exists"})
+            res.status_code = 409
+            raise res 
+
         if password != password2:
-            raise serializers.ValidationError({"error": "Password and password2 are not equal"})
+            res = serializers.ValidationError({"error": "Those passwords didn't match. Try again."})
+            res.status_code = 401
+            raise res
 
         user = User(username=self.validated_data['username'], email=email)
         user.set_password(password)

@@ -91,10 +91,10 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
 #         return self.put(request)
 
 
-##################### using ModelViewSets
-# in viewsets we have to implement all verbs merthd in modelviewsets that are implemented
+############################## using ModelViewSets ###############################
+# in viewsets we have to implement all verbs merthd, in modelviewsets that are implemented
 
-class  StreamPlatformVS(viewsets.ModelViewSet):
+class StreamPlatformVS(viewsets.ModelViewSet):
     queryset = StreamPlatform.objects.all()
     serializer_class = StreamPlatformSerializer
     permission_classes = [IsAdminOrReadOnly]

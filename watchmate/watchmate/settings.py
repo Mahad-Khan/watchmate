@@ -144,10 +144,10 @@ REST_FRAMEWORK = {                                    #### this setting will app
     # ],
     'DEFAULT_THROTTLE_RATES': {                 # requests counting count combined whichever the view you request \
                                                 # if the view has throttle_classes     
-        'anon': '3/day',                        # anonymous scope
-        'user': '3/day',                        # user scope
-        'review-create': '1/day',               # defined scope only for this view
-        'review-list': '3/day',                 # defined scope only for this view
-        'review-detail': '1/day'
+        'anon': '3/second',                        # anonymous scope
+        'user': '3/second',                        # user scope
+        'review-create': '1/second',               # defined scope only for this view
+        'review-list': '3/second',                 # defined scope only for this view
+        'review-detail': '1/second'                # scopedRateThrottle
     }
 }

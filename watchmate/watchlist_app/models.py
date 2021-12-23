@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 # Create your models here. 
 
 class StreamPlatform(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     about = models.CharField(max_length=100)
     website = models.URLField(max_length=100)
 
@@ -16,7 +16,7 @@ class StreamPlatform(models.Model):
 class Watchlist(models.Model):
     title = models.CharField(max_length=50)
     storlyline = models.CharField(max_length=200)
-    platform = models.ForeignKey(to=StreamPlatform, on_delete=models.CASCADE, related_name="watchlist")
+    platform = models.ForeignKey(to=StreamPlatform, to_field="name", on_delete=models.CASCADE, related_name="watchlist")
     active = models.BooleanField(default=True)
     avg_rating = models.FloatField(default=0)
     number_rating = models.IntegerField(default=0)
