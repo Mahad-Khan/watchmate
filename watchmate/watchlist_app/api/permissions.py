@@ -9,6 +9,7 @@ class IsAdminOrReadOnly(permissions.IsAdminUser):
 
 class IsReviewUserOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
+        print("f")
         if request.method in permissions.SAFE_METHODS:
             return True
         else:

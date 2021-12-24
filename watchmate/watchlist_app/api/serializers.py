@@ -6,7 +6,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     review_user = serializers.StringRelatedField(read_only=True)
     class Meta:
         model = Review
-        exclude = ('watchlist',)
+        exclude = ('watchlist',)         # saving in views--> serializer.save(watchlist=watch, review_user=review_user)
         # fields = ('__all__')
 
 
