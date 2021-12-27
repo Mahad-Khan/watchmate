@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 # from watchlist_app.api.views import movie_list, movie_detail
 # from watchlist_app.api.views import MovieListApiView, MovieDetailApiView
-from watchlist_app.api.views import (ReviewList, ReviewDetail, ReviewCreate,
+from watchlist_app.api.views import (ReviewList,ReviewDetail, ReviewDetailDeleteApiView, ReviewCreate,
                                     WatchlistApiView, WatchDetailApiView, 
                                     #StreamPlatformListApiView, StreamPlatformDetailApiView,
                                     StreamPlatformVS)
@@ -26,8 +26,9 @@ urlpatterns = [
     # path('review/', ReviewList.as_view(), name="review-list"),
     # path('review/<int:pk>/', ReviewDetail.as_view(), name="review-detail"),
 
-    # path('watch/<int:pk>/review/', ReviewList.as_view(), name="review-list"),    # list all views of a particular movie 
-    path('watch/<int:pk>/review/', ReviewDetail.as_view(), name="review-detail"), 
+    path('watch/<int:pk>/review-list/', ReviewList.as_view(), name="review-list"),    # list all views of a particular movie 
+    path('watch/<int:pk>/review/', ReviewDetail.as_view(), name="review-detail"), # RetrieveUpdateDestroy of a particular movie review
     path('watch/<int:pk>/review-create/', ReviewCreate.as_view(), name="review-create"), # create review for a particular movie
+    path('watch/<int:pk>/review-delete/', ReviewDetailDeleteApiView.as_view(), name="review-delete"), # create review for a particular movie
 
 ]

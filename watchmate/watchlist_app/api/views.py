@@ -10,7 +10,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from watchlist_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly
+from watchlist_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly, HIsReviewUserOrReadOnly
 from rest_framework.exceptions import ValidationError
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle, ScopedRateThrottle 
 from watchlist_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle
@@ -53,13 +53,55 @@ class ReviewList(generics.ListAPIView):
 
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Review.objects.all()
+    # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsReviewUserOrReadOnly]
     # throttle_classes = [UserRateThrottle, AnonRateThrottle] 
     throttle_classes = [ScopedRateThrottle, AnonRateThrottle]  # scopedRateThrottle 
     throttle_scope = 'review-detail'
-      
+    
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Review.objects.filter(watchlist=pk)
+
+## adding because want to change delete behavior \
+## alternate class for Review detail generics RetrieveUpdateDestroyAPIView
+class ReviewDetailDeleteApiView(APIView):
+    permission_classes = [HIsReviewUserOrReadOnly]
+    
+    def get(self, request, pk):
+        try:
+            reviews = Review.objects.filter(watchlist=pk)
+        except Review.DoesNotExist:
+            return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = ReviewSerializer(reviews, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    # def put(self, request, pk):
+    #     try:
+    #         platform = StreamPlatform.objects.get(pk=pk)
+    #     except StreamPlatform.DoesNotExist:
+    #         return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
+    #     serializer = StreamPlatformSerializer(platform, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     else:
+    #         return Response(serializer.errors)
+
+    def delete(self, request, pk):
+        try:
+            
+            print(pk, request.user)
+            review = Review.objects.filter(watchlist=pk, review_user=request.user)
+            
+        except Review.DoesNotExist:
+            return Response({"msg":"not found"}, status=status.HTTP_404)
+        review.delete()
+        return Response({"msg": "record has been deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+
+        
 
 
 
