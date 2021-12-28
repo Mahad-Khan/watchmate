@@ -52,51 +52,54 @@ class ReviewList(generics.ListAPIView):
         return Review.objects.filter(watchlist=pk)
 
 
-class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
-    # queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-    permission_classes = [IsReviewUserOrReadOnly]
-    # throttle_classes = [UserRateThrottle, AnonRateThrottle] 
-    throttle_classes = [ScopedRateThrottle, AnonRateThrottle]  # scopedRateThrottle 
-    throttle_scope = 'review-detail'
+# class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
+#     # queryset = Review.objects.all()
+#     serializer_class = ReviewSerializer
+#     # permission_classes = [IsReviewUserOrReadOnly]
+#     # throttle_classes = [UserRateThrottle, AnonRateThrottle] 
+#     # throttle_classes = [ScopedRateThrottle, AnonRateThrottle]  # scopedRateThrottle 
+#     throttle_scope = 'review-detail'
     
-    def get_queryset(self):
-        pk = self.kwargs['pk']
-        return Review.objects.filter(watchlist=pk)
+#     def get_queryset(self):
+#         pk = self.kwargs['pk']
+#         print(pk)
+#         print(Review.objects.filter(watchlist=pk))
+#         return Review.objects.filter(watchlist=pk)
 
-## adding because want to change delete behavior \
-## alternate class for Review detail generics RetrieveUpdateDestroyAPIView
-class ReviewDetailDeleteApiView(APIView):
-    permission_classes = [HIsReviewUserOrReadOnly]
+## adding ReviewDetailApiView because want to change delete behavior \
+## in ReviewDetail it is hard to override
+
+class ReviewDetailApiView(APIView):
+    permission_classes = [IsAuthenticated]
     
     def get(self, request, pk):
         try:
-            reviews = Review.objects.filter(watchlist=pk)
+            print(request.user)
+            review = Review.objects.get(watchlist=pk, review_user=request.user)
+            print(review)
         except Review.DoesNotExist:
             return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ReviewSerializer(reviews, many=True, context={'request': request})
+        serializer = ReviewSerializer(review, context={'request': request})
         return Response(serializer.data)
 
-    # def put(self, request, pk):
-    #     try:
-    #         platform = StreamPlatform.objects.get(pk=pk)
-    #     except StreamPlatform.DoesNotExist:
-    #         return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
-    #     serializer = StreamPlatformSerializer(platform, data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data)
-    #     else:
-    #         return Response(serializer.errors)
+    def put(self, request, pk):
+        try:
+            print(pk, request.user)
+            review = Review.objects.get(watchlist=pk, review_user=request.user)
+        except Review.DoesNotExist:
+            return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = ReviewSerializer(review, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
 
     def delete(self, request, pk):
         try:
-            
-            print(pk, request.user)
-            review = Review.objects.filter(watchlist=pk, review_user=request.user)
-            
+            review = Review.objects.get(watchlist=pk, review_user=request.user)
         except Review.DoesNotExist:
-            return Response({"msg":"not found"}, status=status.HTTP_404)
+            return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
         review.delete()
         return Response({"msg": "record has been deleted"}, status=status.HTTP_204_NO_CONTENT)
 
