@@ -15,6 +15,29 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle, ScopedRateThrottle 
 from watchlist_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle
 
+
+# get all reviews
+class AllReviews(generics.ListAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+# for filtering purposes
+class UserReview(generics.ListAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    # filter against the current username
+    # def get_queryset(self):
+    #     username = self.kwargs['username']
+    #     return Review.objects.filter(review_user__username=username)
+
+
+    # filter against the current username by using query param
+    def get_queryset(self):
+        username = self.request.query_params.get('username', None)
+        return Review.objects.filter(review_user__username=username)
+
+
 # using generics views
 class ReviewCreate(generics.CreateAPIView):
     queryset = Review.objects.all()
@@ -39,7 +62,7 @@ class ReviewCreate(generics.CreateAPIView):
         watch.save()
         serializer.save(watchlist=watch, review_user=review_user)
 
-
+## get all reviews by movie id
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()               # have to override queryset method \
     serializer_class = ReviewSerializer             # because we want review list of a particular movie
