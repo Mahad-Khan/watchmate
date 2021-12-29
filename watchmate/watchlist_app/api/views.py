@@ -14,6 +14,8 @@ from watchlist_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadO
 from rest_framework.exceptions import ValidationError
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle, ScopedRateThrottle 
 from watchlist_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 
 
 # get all reviews
@@ -21,10 +23,23 @@ class AllReviews(generics.ListAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
+
+class SearchWatchlist(generics.ListAPIView):
+    queryset = Watchlist.objects.all()
+    serializer_class = WatchlistSerializer
+    filter_backends = [SearchFilter]                  # 
+    search_fields = ['title', 'platform__name']
+    
+
 # for filtering purposes
 class UserReview(generics.ListAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    # filter_backends = [DjangoFilterBackend]         ## filters are good for searching exact values
+    # filterset_fields = ['review_user', 'active']
+
+    filter_backends = [SearchFilter]                  # 
+    search_fields = ['active']
 
     # filter against the current username
     # def get_queryset(self):
@@ -33,9 +48,9 @@ class UserReview(generics.ListAPIView):
 
 
     # filter against the current username by using query param
-    def get_queryset(self):
-        username = self.request.query_params.get('username', None)
-        return Review.objects.filter(review_user__username=username)
+    # def get_queryset(self):
+    #     username = self.request.query_params.get('username', None)
+    #     return Review.objects.filter(review_user__username=username)
 
 
 # using generics views
@@ -52,7 +67,7 @@ class ReviewCreate(generics.CreateAPIView):
         review_user = self.request.user
         reivew_queryset = Review.objects.filter(review_user=review_user, watchlist=watch)
         if reivew_queryset.exists():
-            raise ValidationError("you have already reviewd this watch")
+            raise ValidationError("you have already reviewed this watch")
         if watch.number_rating == 0:
             watch.avg_rating = serializer.validated_data['rating']
         else:

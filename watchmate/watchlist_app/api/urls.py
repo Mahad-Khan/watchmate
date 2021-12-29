@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 # from watchlist_app.api.views import movie_list, movie_detail
 # from watchlist_app.api.views import MovieListApiView, MovieDetailApiView
 from watchlist_app.api.views import (ReviewList, ReviewDetailApiView, ReviewCreate,
-                                    WatchlistApiView, WatchDetailApiView, 
+                                    WatchlistApiView, WatchDetailApiView, SearchWatchlist,
                                     #StreamPlatformListApiView, StreamPlatformDetailApiView,
                                     StreamPlatformVS, AllReviews, UserReview)
 
@@ -30,6 +30,7 @@ urlpatterns = [
     path('watch/<int:pk>/review/', ReviewDetailApiView.as_view(), name="review-detail"), # RetrieveUpdateDestroy of a particular movie review
     path('watch/<int:pk>/review-create/', ReviewCreate.as_view(), name="review-create"), # create review for a particular movie
     # path("reviews/", AllReviews.as_view(), name="user-review"), # list all reviews
-    path("reviews/", UserReview.as_view(), name="current-user"), 
+    path("reviews/", UserReview.as_view(), name="current-user"),
+    path("watch/search/", SearchWatchlist.as_view(), name="search-watch"), 
 
 ]

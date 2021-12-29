@@ -13,6 +13,7 @@ def logout_view(request):
     else:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+
 @api_view(['POST'])
 def registerations_view(request):
     
@@ -27,5 +28,4 @@ def registerations_view(request):
             data['token'] = Token.objects.get(user=account).key
         else:
             data = serializer.errors
-
-        return Response(data)
+        return Response(data, status.HTTP_201_CREATED)
