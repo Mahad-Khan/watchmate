@@ -38,7 +38,7 @@ class UserReview(generics.ListAPIView):
     # filter_backends = [DjangoFilterBackend]         ## filters are good for searching exact values
     # filterset_fields = ['review_user', 'active']
 
-    filter_backends = [SearchFilter]                  # 
+    filter_backends = [SearchFilter]
     search_fields = ['active']
 
     # filter against the current username
@@ -112,9 +112,7 @@ class ReviewDetailApiView(APIView):
     
     def get(self, request, pk):
         try:
-            print(request.user)
             review = Review.objects.get(watchlist=pk, review_user=request.user)
-            print(review)
         except Review.DoesNotExist:
             return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)
         serializer = ReviewSerializer(review, context={'request': request})
@@ -122,7 +120,6 @@ class ReviewDetailApiView(APIView):
 
     def put(self, request, pk):
         try:
-            print(pk, request.user)
             review = Review.objects.get(watchlist=pk, review_user=request.user)
         except Review.DoesNotExist:
             return Response({"msg":"not found"}, status=status.HTTP_404_NOT_FOUND)

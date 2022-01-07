@@ -148,7 +148,7 @@ REST_FRAMEWORK = {                                    #### this setting will app
                                                 # if the view has throttle_classes     
         'anon': '3/second',                        # anonymous scope
         'user': '3/second',                        # user scope
-        'review-create': '1/second',               # defined scope only for this view
+        'review-create': '3/second',               # defined scope only for this view
         'review-list': '3/second',                 # defined scope only for this view
         'review-detail': '1/second'                # scopedRateThrottle
     }
