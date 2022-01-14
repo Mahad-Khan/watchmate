@@ -1,6 +1,9 @@
 # IMDB REST API Clone with DRF
 
 Django REST framework is a powerful and flexible toolkit for building Web APIs.
+API Docs:
+
+    https://documenter.getpostman.com/view/16454093/UVXjJvdE
 
 ## Requirements
 Python 3.8
